@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class NavMenuResponseDTO {
-    private Long id;
+    private Long id, parentId;
     private String name, path, visibleYn;
     private Integer sortOrder, depth;
 

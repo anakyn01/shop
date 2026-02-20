@@ -29,12 +29,18 @@ public class ProductController {
         return productService.getById(id);
     }
 
+    // 🔥 slug로 조회 추가
+    @GetMapping("/slug/{slug}")
+    public ProductResponse getBySlug(@PathVariable String slug) {
+        return productService.getBySlug(slug);
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductResponse create(
             @RequestParam @NotBlank String title,
             @RequestParam(required = false) String desc,
             @RequestParam @NotNull Integer price,
-            @RequestParam @NotNull Long categoryId,         // ✅ 변경: categoryId 하나만
+            @RequestParam @NotNull Long categoryId,
             @RequestPart("image") MultipartFile image
     ) throws Exception {
         return productService.create(title, desc, price, categoryId, image);
@@ -46,7 +52,7 @@ public class ProductController {
             @RequestParam @NotBlank String title,
             @RequestParam(required = false) String desc,
             @RequestParam @NotNull Integer price,
-            @RequestParam(required = false) Long categoryId, // ✅ 변경: categoryId 하나만
+            @RequestParam(required = false) Long categoryId,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws Exception {
         return productService.update(id, title, desc, price, categoryId, image);

@@ -2,110 +2,145 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button, Container } from "react-bootstrap";
-import ProductModal from "@/modal/ProductModal";
+import { Button, Container, Form } from "react-bootstrap";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
 
+type MenuNode = {
+  id: number;
+  name: string;
+  path?: string | null;
+  children?: MenuNode[];
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
-  const productId = Number(params.id);
   const router = useRouter();
 
-  const [showModal, setShowModal] = useState(true);
+  // category1, category2, slug 모두 받음
+  const { category1, category2, slug } = params as {
+    category1: string;
+    category2: string;
+    slug: string;
+  };
+
   const [product, setProduct] = useState<any>(null);
   const [isLogin, setIsLogin] = useState<boolean | null>(null);
   const [userRole, setUserRole] = useState<"consumer" | "developer" | null>(null);
 
-  // 로그인 상태 및 사용자 역할 체크
-  const checkUserRole = async () => {
+  const [menuTree, setMenuTree] = useState<MenuNode[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
+
+  // 메뉴 불러오기
+  const fetchMenus = async () => {
     try {
-      const res = await fetch(`${API_BASE}/auth/me`, { credentials: "include" });
-      if (!res.ok) throw new Error("로그인 체크 실패");
-
+      const res = await fetch(`${API_BASE}/nav-menus/tree`);
+      if (!res.ok) throw new Error("메뉴 조회 실패");
       const data = await res.json();
-      console.log("🔥 auth/me 응답:", data);
-
-      setIsLogin(true);
-      setUserRole(data.role);
-
-      // 로컬 스토리지에 로그인 상태 및 역할 저장
-      localStorage.setItem("isLogin", JSON.stringify(true));
-      localStorage.setItem("userRole", JSON.stringify(data.role));
+      setMenuTree(data);
     } catch (err) {
-      console.log("❌ 로그인 안 됨");
-      setIsLogin(false);
-      setUserRole("consumer"); // 기본값으로 소비자 역할 설정
+      console.error(err);
     }
   };
 
-  // 상품 정보 가져오기
+  // 로그인 체크
+  const checkUserRole = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("로그인 체크 실패");
+      const data = await res.json();
+      setIsLogin(true);
+      setUserRole(data.role);
+      localStorage.setItem("isLogin", JSON.stringify(true));
+      localStorage.setItem("userRole", JSON.stringify(data.role));
+    } catch {
+      setIsLogin(false);
+      setUserRole("consumer");
+    }
+  };
+
+  // slug 기반 상품 조회
   const fetchProductDetails = async () => {
     try {
-      const res = await fetch(`${API_BASE}/products/${productId}`);
+      const res = await fetch(`${API_BASE}/products/slug/${slug}`);
       if (!res.ok) throw new Error("상품 정보 불러오기 실패");
       const data = await res.json();
       setProduct(data);
     } catch (err) {
-      console.error("상품 정보 불러오기 실패", err);
+      console.error(err);
     }
   };
 
-  // 장바구니에 상품 추가
+  // 장바구니 추가 함수
   const handleAddToCart = () => {
     if (!product) return;
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-    const existingProduct = cart.find((item: any) => item.id === product.id);
-
-    if (existingProduct) {
+    if (cart.find((item: any) => item.id === product.id)) {
       alert("이미 장바구니에 추가된 상품입니다.");
-    } else {
-      cart.push(product);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert("장바구니에 상품을 추가했습니다.");
+      return;
     }
+    cart.push(product);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("장바구니에 상품을 추가했습니다.");
   };
 
-  // 결제 처리
+  // 결제 함수
   const handleCheckout = () => {
-    if (isLogin) {
-      router.push("/checkout"); // 로그인 상태에서 결제 화면으로 이동
-    } else {
+    if (isLogin) router.push("/checkout");
+    else {
       alert("로그인이 필요합니다");
       router.push("/login");
     }
   };
 
   useEffect(() => {
+    if (!slug) return;
     fetchProductDetails();
+    fetchMenus();
+
     const storedIsLogin = localStorage.getItem("isLogin");
     const storedUserRole = localStorage.getItem("userRole");
-
     if (storedIsLogin && storedUserRole) {
       setIsLogin(JSON.parse(storedIsLogin));
       setUserRole(JSON.parse(storedUserRole));
-    } else {
-      checkUserRole(); // 로컬 스토리지에 없으면 서버에서 로그인 상태를 확인
-    }
-  }, [productId]);
+    } else checkUserRole();
+  }, [slug]);
 
-  if (isNaN(productId)) {
-    return <div>잘못된 상품 ID입니다.</div>;
-  }
-
-  if (isLogin === null || userRole === null) {
-    return <div>로딩 중...</div>; // 로그인과 역할 정보가 아직 설정되지 않았다면 로딩 중 표시
-  }
-
-  if (!product) {
-    return <div>상품 정보를 불러오는 중입니다...</div>; // 상품 정보 로딩 중 처리
-  }
+  if (!slug) return <div>잘못된 접근입니다.</div>;
+  if (isLogin === null || userRole === null) return <div>로딩 중...</div>;
+  if (!product) return <div>상품 정보를 불러오는 중입니다...</div>;
 
   return (
     <Container>
       <h1>상품 상세</h1>
+
+      {/* 개발자 카테고리 선택 */}
+      {userRole === "developer" && (
+        <div className="mb-3 mt-3">
+          <Form.Label>카테고리 선택 (3차 메뉴)</Form.Label>
+          <Form.Select
+            value={selectedCategoryId}
+            onChange={(e) =>
+              setSelectedCategoryId(e.target.value === "" ? "" : Number(e.target.value))
+            }
+          >
+            <option value="">카테고리 선택</option>
+            {menuTree.map((m1) =>
+              (m1.children ?? []).map((m2) =>
+                (m2.children ?? []).map((m3) => (
+                  <option key={m3.id} value={m3.id}>
+                    {m1.name} &gt; {m2.name} &gt; {m3.name}
+                  </option>
+                ))
+              )
+            )}
+          </Form.Select>
+        </div>
+      )}
+
       <div className="d-flex flex-column align-items-center mt-3">
         <img
           src={`${API_ROOT}${product.imageUrl}`}
@@ -118,7 +153,6 @@ export default function ProductDetailPage() {
           <strong>{product.price.toLocaleString()}원</strong>
         </p>
 
-        {/* 로그인 여부와 역할에 따라 버튼 렌더링 */}
         {isLogin && (
           <div className="d-flex gap-2 mt-3">
             <Button variant="primary" onClick={handleAddToCart}>
@@ -130,7 +164,6 @@ export default function ProductDetailPage() {
           </div>
         )}
 
-        {/* 개발자일 경우 수정 및 삭제 버튼 표시 */}
         {userRole === "developer" && (
           <div className="d-flex gap-2 mt-3">
             <Button
@@ -143,7 +176,7 @@ export default function ProductDetailPage() {
               variant="danger"
               onClick={() => {
                 if (confirm("정말 삭제하시겠습니까?")) {
-                  // 삭제 로직
+                  // 삭제 API 연결
                 }
               }}
             >

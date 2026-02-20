@@ -16,7 +16,7 @@ public class CategoryController {
 
     private final CategoryService service;
 
-    // ✅ 전체 카테고리 조회
+    // ✅ 전체 카테고리 계층 조회
     @GetMapping
     public List<CategoryResponse> list() {
         return service.getAllHierarchy();
@@ -28,19 +28,19 @@ public class CategoryController {
         return service.getById(id);
     }
 
-    // ✅ 생성
+    // ✅ 카테고리 생성
     @PostMapping
     public CategoryResponse create(@RequestBody CategoryRequest req) {
         return service.create(req);
     }
 
-    // ✅ 수정
+    // ✅ 카테고리 수정
     @PutMapping("/{id}")
     public CategoryResponse update(@PathVariable Long id, @RequestBody CategoryRequest req) {
         return service.update(id, req);
     }
 
-    // ✅ 삭제
+    // ✅ 카테고리 삭제
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);

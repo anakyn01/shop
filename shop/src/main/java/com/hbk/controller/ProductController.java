@@ -34,11 +34,10 @@ public class ProductController {
             @RequestParam @NotBlank String title,
             @RequestParam(required = false) String desc,
             @RequestParam @NotNull Integer price,
-            @RequestParam @NotNull Long primaryCategoryId,
-            @RequestParam @NotNull Long secondaryCategoryId,
+            @RequestParam @NotNull Long categoryId,         // ✅ 변경: categoryId 하나만
             @RequestPart("image") MultipartFile image
     ) throws Exception {
-        return productService.create(title, desc, price, primaryCategoryId, secondaryCategoryId, image);
+        return productService.create(title, desc, price, categoryId, image);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -47,11 +46,10 @@ public class ProductController {
             @RequestParam @NotBlank String title,
             @RequestParam(required = false) String desc,
             @RequestParam @NotNull Integer price,
-            @RequestParam(required = false) Long primaryCategoryId,
-            @RequestParam(required = false) Long secondaryCategoryId,
+            @RequestParam(required = false) Long categoryId, // ✅ 변경: categoryId 하나만
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws Exception {
-        return productService.update(id, title, desc, price, primaryCategoryId, secondaryCategoryId, image);
+        return productService.update(id, title, desc, price, categoryId, image);
     }
 
     @DeleteMapping("/{id}")

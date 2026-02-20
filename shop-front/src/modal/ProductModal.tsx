@@ -6,10 +6,10 @@ import styled from "styled-components";
 
 const API_BASE = "http://localhost:9999/api";
 
-type CategoryNode = {
+type MenuNode = {
   id: number;
   name: string;
-  children?: CategoryNode[];
+  children?: MenuNode[];
 };
 
 type SizeStock = {
@@ -37,8 +37,34 @@ type Props = {
   productId?: number;
   mode?: "create" | "edit" | "view";
   isLogin: boolean;
-  categoryList?: CategoryNode[];
+  categoryList?: MenuNode[];
 };
+
+// 메뉴 옵션 렌더링 함수 (들여쓰기 표현 포함, 재귀 지원)
+function renderMenuOptions(menus: MenuNode[], level = 0): any[] {
+  return menus.flatMap((menu) => [
+    <option key={menu.id} value={menu.id}>
+      {"\u00A0".repeat(level * 4) + menu.name}
+    </option>,
+    ...(menu.children ? renderMenuOptions(menu.children, level + 1) : []),
+  ]);
+}
+
+// 선택한 categoryId 기준 상위 메뉴 경로 배열 반환 함수
+function findMenuPath(
+  menus: MenuNode[],
+  id: number,
+  path: string[] = []
+): string[] | null {
+  for (const menu of menus) {
+    if (menu.id === id) return [...path, menu.name];
+    if (menu.children) {
+      const found = findMenuPath(menu.children, id, [...path, menu.name]);
+      if (found) return found;
+    }
+  }
+  return null;
+}
 
 export default function ProductModal({
   show,
@@ -67,11 +93,9 @@ export default function ProductModal({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const [category1, setCategory1] = useState<number | null>(null);
-  const [category2, setCategory2] = useState<number | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
 
   const [saving, setSaving] = useState(false);
-
   const isViewMode = mode === "view";
 
   const unitPrice = useMemo(() => {
@@ -79,16 +103,12 @@ export default function ProductModal({
     return Number.isFinite(n) ? n : 0;
   }, [form.price]);
 
-  // -----------------------------
-  // 상품 불러오기
-  // -----------------------------
   useEffect(() => {
     if (!show) return;
 
     if (mode === "create") {
       setForm({ title: "", desc: "", price: "", sizes: [], specs: [] });
-      setCategory1(null);
-      setCategory2(null);
+      setCategoryId(null);
       setImageFile(null);
       setImageUrl(null);
       setSelectedSize(null);
@@ -114,18 +134,7 @@ export default function ProductModal({
             specs: data.specs ?? [],
           });
 
-          const primaryId =
-            typeof data.primaryCategory === "object"
-              ? data.primaryCategory?.id
-              : data.primaryCategory;
-
-          const secondaryId =
-            typeof data.secondaryCategory === "object"
-              ? data.secondaryCategory?.id
-              : data.secondaryCategory;
-
-          setCategory1(primaryId ? Number(primaryId) : null);
-          setCategory2(secondaryId ? Number(secondaryId) : null);
+          setCategoryId(data.categoryId ?? null);
 
           setImageUrl(
             data.imageUrl ? `http://localhost:9999${data.imageUrl}` : null
@@ -139,9 +148,6 @@ export default function ProductModal({
     }
   }, [show, mode, productId]);
 
-  // -----------------------------
-  // 입력 변경
-  // -----------------------------
   const onChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -151,19 +157,13 @@ export default function ProductModal({
 
     const { name, value } = e.target;
 
-    if (name === "category1") {
-      setCategory1(value === "" ? null : Number(value));
-      setCategory2(null);
-    } else if (name === "category2") {
-      setCategory2(value === "" ? null : Number(value));
+    if (name === "categoryId") {
+      setCategoryId(value === "" ? null : Number(value));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // -----------------------------
-  // 사이즈 추가
-  // -----------------------------
   const addSize = () => {
     const size = Number(sizeInput);
     const stock = Number(stockInput);
@@ -184,9 +184,6 @@ export default function ProductModal({
     setStockInput("");
   };
 
-  // -----------------------------
-  // 상품정보고시 추가
-  // -----------------------------
   const addSpec = () => {
     if (!specLabel.trim()) return alert("항목명을 입력하세요.");
     if (!specValue.trim()) return alert("내용을 입력하세요.");
@@ -207,18 +204,13 @@ export default function ProductModal({
     }));
   };
 
-  // -----------------------------
-  // 저장
-  // -----------------------------
   const handleSave = async () => {
     if (isViewMode) return;
 
     if (!form.title.trim()) return alert("상품명을 입력하세요.");
     if (!form.price.trim()) return alert("가격을 입력하세요.");
 
-    if (category1 == null || category2 == null) {
-      return alert("카테고리를 선택하세요.");
-    }
+    if (categoryId == null) return alert("메뉴를 선택하세요.");
 
     if (form.sizes.length === 0) {
       return alert("사이즈를 하나 이상 추가하세요.");
@@ -238,13 +230,9 @@ export default function ProductModal({
     fd.append("title", form.title);
     fd.append("desc", form.desc);
     fd.append("price", Number(form.price).toString());
-    fd.append("primaryCategoryId", String(category1));
-    fd.append("secondaryCategoryId", String(category2));
+    fd.append("categoryId", String(categoryId));
 
-    // ⭐ 사이즈/재고 JSON
     fd.append("sizes", JSON.stringify(form.sizes));
-
-    // ⭐ 상품정보고시 JSON
     fd.append("specs", JSON.stringify(form.specs));
 
     if (imageFile) {
@@ -279,11 +267,10 @@ export default function ProductModal({
     }
   };
 
-  // -----------------------------
-  // 카테고리 표시용
-  // -----------------------------
-  const primaryObj = categoryList.find((c) => c.id === category1);
-  const secondaryObj = primaryObj?.children?.find((c) => c.id === category2);
+  // 상세 모드에서 전체 경로 출력용
+  const categoryPath = categoryId
+    ? findMenuPath(categoryList, categoryId)?.join(" / ")
+    : null;
 
   return (
     <Modal show={show} onHide={onClose} centered>
@@ -330,49 +317,24 @@ export default function ProductModal({
         </Form.Group>
 
         <Form.Group className="mb-3">
-          <Form.Label>카테고리</Form.Label>
+          <Form.Label>메뉴 선택</Form.Label>
 
           {isViewMode ? (
-            <div>
-              {primaryObj?.name ?? "없음"} / {secondaryObj?.name ?? "없음"}
-            </div>
+            <div>{categoryPath ?? "없음"}</div>
           ) : (
-            <>
-              <Form.Select
-                name="category1"
-                value={category1 ?? ""}
-                onChange={onChange}
-                disabled={saving}
-              >
-                <option value="">1차 카테고리 선택</option>
-                {categoryList.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Form.Select>
-
-              <Form.Select
-                name="category2"
-                className="mt-2"
-                value={category2 ?? ""}
-                onChange={onChange}
-                disabled={!category1 || saving}
-              >
-                <option value="">2차 카테고리 선택</option>
-                {primaryObj?.children?.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Form.Select>
-            </>
+            <Form.Select
+              name="categoryId"
+              value={categoryId ?? ""}
+              onChange={onChange}
+              disabled={saving}
+            >
+              <option value="">메뉴 선택</option>
+              {renderMenuOptions(categoryList)}
+            </Form.Select>
           )}
         </Form.Group>
 
-        {/* ----------------------------- */}
         {/* 사이즈/재고 UI */}
-        {/* ----------------------------- */}
         <Form.Group className="mb-3">
           <Form.Label>사이즈/재고</Form.Label>
 
@@ -418,9 +380,7 @@ export default function ProductModal({
           )}
         </Form.Group>
 
-        {/* ----------------------------- */}
         {/* 상품정보고시 UI */}
-        {/* ----------------------------- */}
         <Form.Group className="mb-3">
           <Form.Label>상품정보고시</Form.Label>
 

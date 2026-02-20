@@ -16,11 +16,9 @@ public class ProductResponse {
     private Integer price;
     private String imageUrl;
 
-    // Category 객체 기준
-    private Long primaryCategoryId;
-    private String primaryCategoryName;
-    private Long secondaryCategoryId;
-    private String secondaryCategoryName;
+    // ✅ NavMenu 기준
+    private Long categoryId;
+    private String categoryName;
 
     public static ProductResponse from(Product e) {
         return ProductResponse.builder()
@@ -29,10 +27,8 @@ public class ProductResponse {
                 .desc(e.getDesc())
                 .price(e.getPrice())
                 .imageUrl(e.getImageUrl())
-                .primaryCategoryId(e.getPrimaryCategory() != null ? e.getPrimaryCategory().getId() : null)
-                .primaryCategoryName(e.getPrimaryCategory() != null ? e.getPrimaryCategory().getName() : null)
-                .secondaryCategoryId(e.getSecondaryCategory() != null ? e.getSecondaryCategory().getId() : null)
-                .secondaryCategoryName(e.getSecondaryCategory() != null ? e.getSecondaryCategory().getName() : null)
+                .categoryId(e.getCategory() != null ? e.getCategory().getId() : null)
+                .categoryName(e.getCategory() != null ? e.getCategory().getName() : null)
                 .build();
     }
 }

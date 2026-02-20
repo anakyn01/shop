@@ -2,11 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button, Container } from "react-bootstrap";
+import { Button, Container, Form } from "react-bootstrap";
 import ProductModal from "@/modal/ProductModal";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
+
+// ✅ 추가: 메뉴 타입 정의
+type MenuNode = {
+  id: number;
+  name: string;
+  path?: string | null;
+  children?: MenuNode[];
+};
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -17,6 +25,24 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<any>(null);
   const [isLogin, setIsLogin] = useState<boolean | null>(null);
   const [userRole, setUserRole] = useState<"consumer" | "developer" | null>(null);
+
+    // ✅ 추가: 메뉴 상태
+  const [menuTree, setMenuTree] = useState<MenuNode[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
+
+  // -------------------------
+  // ✅ 추가: 메뉴 불러오기
+  // -------------------------
+  const fetchMenus = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/nav-menus/tree`);
+      if (!res.ok) throw new Error("메뉴 조회 실패");
+      const data = await res.json();
+      setMenuTree(data);
+    } catch (err) {
+      console.error("메뉴 조회 실패", err);
+    }
+  };
 
   // 로그인 상태 및 사용자 역할 체크
   const checkUserRole = async () => {
@@ -80,6 +106,9 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     fetchProductDetails();
+
+fetchMenus(); // ✅ 추가
+
     const storedIsLogin = localStorage.getItem("isLogin");
     const storedUserRole = localStorage.getItem("userRole");
 
@@ -106,6 +135,37 @@ export default function ProductDetailPage() {
   return (
     <Container>
       <h1>상품 상세</h1>
+
+ {/* ✅ 추가: 카테고리 선택 (개발자만 보이게) */}
+      {userRole === "developer" && (
+        <div className="mb-3 mt-3">
+          <Form.Label>카테고리 선택 (3차 메뉴)</Form.Label>
+          <Form.Select
+            value={selectedCategoryId}
+            onChange={(e) =>
+              setSelectedCategoryId(
+                e.target.value === "" ? "" : Number(e.target.value)
+              )
+            }
+          >
+            <option value="">카테고리 선택</option>
+
+            {menuTree.map((m1) =>
+              (m1.children ?? []).map((m2) =>
+                (m2.children ?? []).map((m3) => (
+                  <option key={m3.id} value={m3.id}>
+                    {m1.name} &gt; {m2.name} &gt; {m3.name}
+                  </option>
+                ))
+              )
+            )}
+          </Form.Select>
+        </div>
+      )}
+
+
+
+
       <div className="d-flex flex-column align-items-center mt-3">
         <img
           src={`${API_ROOT}${product.imageUrl}`}

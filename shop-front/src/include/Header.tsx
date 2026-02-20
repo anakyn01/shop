@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Button, Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import Link from "next/link";//
+import "./header.css";
 
 type Props = {
   onOpenModal: () => void;
@@ -60,15 +61,41 @@ console.error("menu load error", e);//👉 에러가 발생하면 여기로 이�
     <NavDropdown.Item as={Link} href={menu.path ?? "#"}>{menu.name}</NavDropdown.Item>
   );
 
-  const renderDropdown = (node: MenuNode) => (
-    <NavDropdown key={node.id} title={node.name} id={`nav-${node.id}`}>
-      {(node.children ?? []).map(child => 
-        child.children && child.children.length > 0 ? 
-          renderDropdown(child) : 
-          renderMenu(child)
-      )}
-    </NavDropdown>
-  );
+ const renderDropdown = (node: MenuNode) => (
+  <NavDropdown
+    key={node.id}
+    title={node.name}
+    id={`nav-${node.id}`}
+    className="mega-dropdown"
+  >
+    <div className="mega-menu">
+      {(node.children ?? []).map((child) => (
+        <div key={child.id} className="mega-column">
+          <div className="mega-title">
+            {child.path ? (
+              <Link href={child.path} className="mega-title-link">
+                {child.name}
+              </Link>
+            ) : (
+              child.name
+            )}
+          </div>
+
+          {(child.children ?? []).map((sub) => (
+            <NavDropdown.Item
+              key={sub.id}
+              as={Link}
+              href={sub.path ?? "#"}
+              className="mega-item"
+            >
+              {sub.name}
+            </NavDropdown.Item>
+          ))}
+        </div>
+      ))}
+    </div>
+  </NavDropdown>
+);
 
   return (
     <Navbar
@@ -154,6 +181,7 @@ console.error("menu load error", e);//👉 에러가 발생하면 여기로 이�
   );
 }
 
+
 /*
  {/* 가운데 메뉴 
         <Nav className="mx-auto">
@@ -185,4 +213,14 @@ id={`nav-${m1.id}`}
 </NavDropdown>
 ))}
         </Nav>
+
+         const renderDropdown = (node: MenuNode) => (
+    <NavDropdown key={node.id} title={node.name} id={`nav-${node.id}`}>
+      {(node.children ?? []).map(child => 
+        child.children && child.children.length > 0 ? 
+          renderDropdown(child) : 
+          renderMenu(child)
+      )}
+    </NavDropdown>
+  );
 */

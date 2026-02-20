@@ -23,10 +23,13 @@ import SideBar from "./include/SideBar";
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
 
-type CategoryNode = {
+/* --------------------------------
+   ✅ nav-menu 구조로 변경
+-------------------------------- */
+type MenuNode = {
   id: number;
   name: string;
-  children?: CategoryNode[];
+  children?: MenuNode[];
 };
 
 type Product = {
@@ -36,25 +39,13 @@ type Product = {
   price: number;
   imageUrl?: string;
 
-  // 프론트에서 매핑한 카테고리 구조
-  primaryCategory?: {
-    id: number;
-    name: string;
-  };
-
-  secondaryCategory?: {
-    id: number;
-    name: string;
-  };
-
-  // 서버에서 내려오는 id 형태도 포함
-  primaryCategoryId?: number;
-  secondaryCategoryId?: number;
+  // ✅ 이제 categoryId 하나만 사용 (3차 기준)
+  categoryId?: number;
 };
 
 export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categoryList, setCategoryList] = useState<CategoryNode[]>([]);
+  const [menuTree, setMenuTree] = useState<MenuNode[]>([]); // ✅ 변경
 
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] =
@@ -66,25 +57,25 @@ export default function Admin() {
   const onOpenModal = () => openModal("create");
 
   /* -----------------------------
-     카테고리 리스트 조회
+     ✅ nav 메뉴 조회
   ----------------------------- */
-  const fetchCategories = async () => {
+  const fetchMenus = async () => {
     try {
-      const res = await fetch(`${API_BASE}/categories`, {
+      const res = await fetch(`${API_BASE}/nav-menus/tree`, {
         cache: "no-store",
       });
 
-      if (!res.ok) throw new Error("카테고리 로딩 실패");
+      if (!res.ok) throw new Error("메뉴 로딩 실패");
 
       const data = await res.json();
-      setCategoryList(data);
+      setMenuTree(data);
     } catch (err) {
-      console.error("카테고리 로딩 실패", err);
+      console.error("메뉴 로딩 실패", err);
     }
   };
 
   /* -----------------------------
-     상품 리스트 조회 (카테고리 매핑 포함)
+     상품 리스트 조회
   ----------------------------- */
   const fetchProducts = async () => {
     try {
@@ -95,36 +86,7 @@ export default function Admin() {
       if (!res.ok) throw new Error("상품 리스트 불러오기 실패");
 
       const data = await res.json();
-
-      // 🔥 카테고리 매핑
-      const mapped = data.map((p: any) => {
-        const primaryId =
-          p.primaryCategory?.id ??
-          p.primaryCategoryId ??
-          p.primaryCategory;
-
-        const secondaryId =
-          p.secondaryCategory?.id ??
-          p.secondaryCategoryId ??
-          p.secondaryCategory;
-
-        const primary = categoryList.find((c) => c.id === primaryId);
-        const secondary = primary?.children?.find(
-          (c) => c.id === secondaryId
-        );
-
-        return {
-          ...p,
-          primaryCategory: primary
-            ? { id: primary.id, name: primary.name }
-            : undefined,
-          secondaryCategory: secondary
-            ? { id: secondary.id, name: secondary.name }
-            : undefined,
-        };
-      });
-
-      setProducts(mapped);
+      setProducts(data);
     } catch (err) {
       console.error("상품 로딩 실패", err);
     }
@@ -166,18 +128,28 @@ export default function Admin() {
      최초 로딩
   ----------------------------- */
   useEffect(() => {
-    fetchCategories();
+    fetchMenus(); // ✅ 변경
+    fetchProducts();
     checkLogin();
   }, []);
 
   /* -----------------------------
-     카테고리 로딩 후 상품 재조회
+     3차 카테고리 이름 찾기 함수
   ----------------------------- */
-  useEffect(() => {
-    if (categoryList.length > 0) {
-      fetchProducts();
+  const findCategoryPath = (categoryId?: number) => {
+    if (!categoryId) return "카테고리 없음";
+
+    for (const m1 of menuTree) {
+      for (const m2 of m1.children ?? []) {
+        for (const m3 of m2.children ?? []) {
+          if (m3.id === categoryId) {
+            return `${m1.name} / ${m2.name} / ${m3.name}`;
+          }
+        }
+      }
     }
-  }, [categoryList]);
+    return "카테고리 없음";
+  };
 
   /* -----------------------------
      모달 열기
@@ -204,15 +176,15 @@ export default function Admin() {
 
         <Content>
           <div className="d-flex justify-content-between my-4">
-          <H1>쇼핑몰 관리</H1>    
-          <Button 
-          className="me-2" variant="outline-primary" onClick={onOpenModal} >
-                상품 등록
-              </Button>
-            </div>    
- 
-     
-
+            <H1>쇼핑몰 관리</H1>
+            <Button
+              className="me-2"
+              variant="outline-primary"
+              onClick={onOpenModal}
+            >
+              상품 등록
+            </Button>
+          </div>
 
           <ContentInner>
             {products.map((p) => (
@@ -230,12 +202,8 @@ export default function Admin() {
                 <ProductDetails>
                   <H5>{p.title}</H5>
 
-                  {/* 카테고리 출력 */}
-                  <P>
-                    {p.primaryCategory && p.secondaryCategory
-                      ? `${p.primaryCategory.name} / ${p.secondaryCategory.name}`
-                      : "카테고리 정보 없음"}
-                  </P>
+                  {/* ✅ nav 메뉴 기준 카테고리 출력 */}
+                  <P>{findCategoryPath(p.categoryId)}</P>
 
                   <Pprice>
                     {p.price.toLocaleString()}원
@@ -280,7 +248,7 @@ export default function Admin() {
           productId={currentProductId}
           mode={modalMode}
           isLogin={isLogin}
-          categoryList={categoryList ?? []}
+          categoryList={menuTree} // ✅ 변경
         />
       </MainContentWrapper>
     </PageWrapper>

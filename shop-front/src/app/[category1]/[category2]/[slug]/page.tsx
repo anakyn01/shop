@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Container, Form, Modal } from "react-bootstrap";
 import api from "@/lib/axios";
+import CheckoutModal from "@/modal/CheckoutModal"; // ✅ 경로는 프로젝트에 맞게 수정!
 
 const API_ROOT = "http://localhost:9999";
 
@@ -40,6 +41,9 @@ export default function ProductDetailPage() {
   const [cartSize, setCartSize] = useState<number | null>(null);
   const [cartQty, setCartQty] = useState<number>(1);
 
+  // ✅ 결제 모달 상태
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+
   const productSizes: ProductSize[] = useMemo(
     () => product?.sizes ?? [],
     [product]
@@ -64,17 +68,14 @@ export default function ProductDetailPage() {
 
   const fetchProductDetails = useCallback(async () => {
     try {
-      // ✅ slug 가드 (초기 렌더/오타로 undefined면 호출 자체를 막음)
       if (!slug || slug === "undefined") return;
 
       const safeSlug = encodeURIComponent(String(slug));
       const res = await api.get(`/api/products/slug/${safeSlug}`);
 
       const data = res.data;
-
       setProduct(data);
 
-      // 기본 선택 사이즈
       if (data?.sizes && data.sizes.length > 0) {
         setSelectedSize(data.sizes[0].size);
       } else {
@@ -148,14 +149,12 @@ export default function ProductDetailPage() {
       return;
     }
 
-    // 상세에서 선택한 사이즈를 모달 기본값으로
     const baseSize = selectedSize ?? (productSizes[0]?.size ?? null);
     if (!baseSize) {
       alert("사이즈 정보가 없습니다.");
       return;
     }
 
-    // 품절이면 첫 재고 있는 사이즈로 자동 선택
     const baseStock = getStockBySize(baseSize);
     const fallbackSize =
       baseStock > 0
@@ -196,11 +195,10 @@ export default function ProductDetailPage() {
     localStorage.setItem("cart", JSON.stringify(cart));
 
     setShowCartModal(false);
-
-    // ✅ 담고 나서 장바구니로 이동
     router.push("/cart");
   };
 
+  // ✅ 결제하기 버튼: 페이지 이동 대신 결제 모달 오픈
   const handleCheckout = async () => {
     const ok = await ensureLogin();
     if (!ok) {
@@ -208,7 +206,13 @@ export default function ProductDetailPage() {
       router.push("/login");
       return;
     }
-    router.push("/checkout");
+
+    if (role === "developer") {
+      alert("개발자는 결제를 이용할 수 없습니다.");
+      return;
+    }
+
+    setShowCheckoutModal(true);
   };
 
   const handleDirectOrder = async () => {
@@ -233,6 +237,10 @@ export default function ProductDetailPage() {
 
   const modalStock = getStockBySize(cartSize);
   const maxQty = modalStock > 0 ? modalStock : 1;
+
+  // ✅ 결제 모달에 넘길 금액 (상품 단일 결제면 상품 가격)
+  // 장바구니 기반 결제금액을 원하면 여기 계산 로직을 바꾸면 됨.
+  const totalPrice = Number(product?.price ?? 0);
 
   return (
     <Container>
@@ -436,6 +444,18 @@ export default function ProductDetailPage() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* ✅ 결제 모달 연결 */}
+      <CheckoutModal
+        show={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        totalPrice={totalPrice}
+        isLogin={isLogin === true}
+        onPaid={() => {
+          // 필요하면 결제 시작 시점에 처리할 작업
+          // 예: localStorage에 lastPaidAt 저장 등
+        }}
+      />
     </Container>
   );
 }

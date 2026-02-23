@@ -134,6 +134,11 @@ export default function ProductModal({
             specs: data.specs ?? [],
           });
 
+
+// ✅ 여기 추가
+setSelectedSize((data.sizes?.[0]?.size ?? null) as number | null);
+
+
           setCategoryId(data.categoryId ?? null);
 
           setImageUrl(
@@ -358,19 +363,47 @@ export default function ProductModal({
             </InputRow>
           )}
 
-          <SizeWrap>
-            {form.sizes.map((s) => (
-              <SizeBtn
-                key={s.size}
-                soldOut={s.stock === 0}
-                selected={selectedSize === s.size}
-                onClick={() => setSelectedSize(s.size)}
-                disabled={s.stock === 0 || saving || isViewMode}
-              >
-                {s.size}
-              </SizeBtn>
-            ))}
-          </SizeWrap>
+{/*여기 수정함 */}
+{isViewMode ? (
+  <SizeViewList>
+    {form.sizes.length === 0 ? (
+      <div style={{ color: "#999" }}>등록된 사이즈가 없습니다.</div>
+    ) : (
+      form.sizes
+        .slice()
+        .sort((a, b) => a.size - b.size)
+        .map((s) => (
+          <SizeViewRow key={s.size}>
+            <span>{s.size}</span>
+            <span>{s.stock === 0 ? "품절" : `재고 ${s.stock}`}</span>
+          </SizeViewRow>
+        ))
+    )}
+  </SizeViewList>
+) : (
+  <>
+    <SizeWrap>
+      {form.sizes.map((s) => (
+        <SizeBtn
+          key={s.size}
+          $soldOut={s.stock === 0}
+          $selected={selectedSize === s.size}
+          onClick={() => setSelectedSize(s.size)}
+          disabled={s.stock === 0 || saving}
+        >
+          {s.size}
+        </SizeBtn>
+      ))}
+    </SizeWrap>
+
+    {selectedSize && (
+      <div className="mt-2">
+        선택 사이즈 재고:{" "}
+        {form.sizes.find((x) => x.size === selectedSize)?.stock ?? 0}
+      </div>
+    )}
+  </>
+)}
 
           {selectedSize && (
             <div className="mt-2">
@@ -490,15 +523,15 @@ const SizeWrap = styled.div`
   gap: 8px;
 `;
 
-const SizeBtn = styled.button<{ soldOut: boolean; selected: boolean }>`
+const SizeBtn = styled.button<{ $soldOut: boolean; $selected: boolean }>`
   border: 1px solid #ddd;
   padding: 10px 14px;
   border-radius: 6px;
-  background: ${({ selected }) => (selected ? "#e6f0ff" : "white")};
-  cursor: ${({ soldOut }) => (soldOut ? "not-allowed" : "pointer")};
-  color: ${({ soldOut }) => (soldOut ? "#aaa" : "inherit")};
-  text-decoration: ${({ soldOut }) => (soldOut ? "line-through" : "none")};
-  border-color: ${({ selected }) => (selected ? "#007bff" : "#ddd")};
+  background: ${({ $selected }) => ($selected ? "#e6f0ff" : "white")};
+  cursor: ${({ $soldOut }) => ($soldOut ? "not-allowed" : "pointer")};
+  color: ${({ $soldOut }) => ($soldOut ? "#aaa" : "inherit")};
+  text-decoration: ${({ $soldOut }) => ($soldOut ? "line-through" : "none")};
+  border-color: ${({ $selected }) => ($selected ? "#007bff" : "#ddd")};
 
   &:disabled {
     opacity: 0.8;
@@ -544,3 +577,43 @@ const RemoveBtn = styled.button`
     opacity: 0.6;
   }
 `;
+
+const SizeViewList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const SizeViewRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+`;
+
+
+
+
+
+/*
+          <SizeWrap>
+            {form.sizes.map((s) => (
+              <SizeBtn
+                key={s.size}
+                //soldOut={s.stock === 0}
+               // selected={selectedSize === s.size}
+
+  $soldOut={s.stock === 0}
+  $selected={selectedSize === s.size}
+
+                onClick={() => setSelectedSize(s.size)}
+                disabled={s.stock === 0 || saving || isViewMode}
+              >
+                {s.size}
+              </SizeBtn>
+            ))}
+          </SizeWrap>
+
+*/

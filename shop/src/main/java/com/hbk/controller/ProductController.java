@@ -1,6 +1,6 @@
 package com.hbk.controller;
 
-import com.hbk.dto.ProductResponse;
+import com.hbk.dto.ProductResponseDTO;
 import com.hbk.service.ProductService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,42 +20,52 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductResponse> list() {
+    public List<ProductResponseDTO> list() {
         return productService.list();
     }
 
     @GetMapping("/{id}")
-    public ProductResponse detail(@PathVariable Long id) {
+    public ProductResponseDTO detail(@PathVariable Long id) {
         return productService.getById(id);
     }
 
-    // 🔥 slug로 조회 추가
+    // 🔥 slug로 조회
     @GetMapping("/slug/{slug}")
-    public ProductResponse getBySlug(@PathVariable String slug) {
+    public ProductResponseDTO getBySlug(@PathVariable String slug) {
         return productService.getBySlug(slug);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ProductResponse create(
+    public ProductResponseDTO create(
             @RequestParam @NotBlank String title,
             @RequestParam(required = false) String desc,
             @RequestParam @NotNull Integer price,
             @RequestParam @NotNull Long categoryId,
+
+            // ✅ sizes/specs (JSON 문자열)
+            @RequestParam @NotBlank String sizes,
+            @RequestParam @NotBlank String specs,
+
             @RequestPart("image") MultipartFile image
     ) throws Exception {
-        return productService.create(title, desc, price, categoryId, image);
+        return productService.create(title, desc, price, categoryId, sizes, specs, image);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ProductResponse update(
+    public ProductResponseDTO update(
             @PathVariable Long id,
             @RequestParam @NotBlank String title,
             @RequestParam(required = false) String desc,
             @RequestParam @NotNull Integer price,
             @RequestParam(required = false) Long categoryId,
+
+            // ✅ sizes/specs (JSON 문자열)
+            @RequestParam @NotBlank String sizes,
+            @RequestParam @NotBlank String specs,
+
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws Exception {
-        return productService.update(id, title, desc, price, categoryId, image);
+        return productService.update(id, title, desc, price, categoryId, sizes, specs, image);
     }
 
     @DeleteMapping("/{id}")

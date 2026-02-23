@@ -41,6 +41,11 @@ type Product = {
 
   // ✅ 이제 categoryId 하나만 사용 (3차 기준)
   categoryId?: number;
+
+  // ✅ 추가
+  sizes?: { size: number; stock: number }[];
+  specs?: { label: string; value: string }[];
+
 };
 
 export default function Admin() {
@@ -204,6 +209,41 @@ export default function Admin() {
 
                   {/* ✅ nav 메뉴 기준 카테고리 출력 */}
                   <P>{findCategoryPath(p.categoryId)}</P>
+
+
+{/*add */}
+{/* ✅ 사이즈/재고 요약 */}
+{(p.sizes?.length ?? 0) > 0 ? (
+  <P style={{ margin: "6px 0 0 0" }}>
+    <b>사이즈:</b>{" "}
+    {p.sizes!
+      .slice()
+      .sort((a, b) => a.size - b.size)
+      .map((s) => `${s.size}(${s.stock})`)
+      .join(", ")}
+  </P>
+) : (
+  <P style={{ margin: "6px 0 0 0", color: "#999" }}>
+    사이즈 없음
+  </P>
+)}
+
+{/* ✅ 상품정보고시 요약 (너무 길면 2개만) */}
+{(p.specs?.length ?? 0) > 0 ? (
+  <P style={{ margin: "6px 0 0 0" }}>
+    <b>고시:</b>{" "}
+    {p.specs!
+      .slice(0, 2)
+      .map((sp) => `${sp.label}: ${sp.value}`)
+      .join(" / ")}
+    {p.specs!.length > 2 ? " ..." : ""}
+  </P>
+) : (
+  <P style={{ margin: "6px 0 0 0", color: "#999" }}>
+    상품정보고시 없음
+  </P>
+)}
+
 
                   <Pprice>
                     {p.price.toLocaleString()}원

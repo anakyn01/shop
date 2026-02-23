@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 
 import Header from "@/include/Header";
 import ProductModal from "@/modal/ProductModal";
-import { categories } from "@/lib/Category";
-
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;

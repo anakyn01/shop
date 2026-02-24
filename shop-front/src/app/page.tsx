@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Container, Button, Carousel } from "react-bootstrap";
 import { useRouter } from "next/navigation";
 
 import Header from "@/include/Header";
 import ProductModal from "@/modal/ProductModal";
 import SmallBanner from "./common/SmallBanner";
-import { BackgroundVideo, TextBanner,TextBanner2, VideoWrap } from "@/styled/Component.styles";
+import { ScrollWrap, TextBanner,TextBanner2, VideoWrap, ImgWrap, ImgTextWrap,
+  SpotLight, SpotLightIconWrap, SpotLightIcon
+ } from "@/styled/Component.styles";
 import { WhiteBtn, BlackBtn, BtnWrap } from "@/styled/Button.styles";
+import Footer from "@/include/Footer";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
@@ -23,14 +25,27 @@ type Product = {
   imageUrl?: string;
 };
 
+type CategoryNode = {
+  id: number;
+  name: string;
+  children?: CategoryNode[];
+};
+
+type MenuNode = {
+  id: number;
+  name: string;
+  children?: MenuNode[];
+};
+
 export default function Home() {
   const router = useRouter();
-
+const [categories, setCategories] = useState<CategoryNode[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">("create");
   const [currentProductId, setCurrentProductId] = useState<number | undefined>(undefined);
   const [isLogin, setIsLogin] = useState<boolean | null>(null);
+const [categoryList, setCategoryList] = useState<MenuNode[]>([]);
 
   // 상품 리스트 조회
   const fetchProducts = async () => {
@@ -81,8 +96,24 @@ export default function Home() {
     return `${primary.name} / ${secondary.name}`;
   };
 
+  //add
+  const fetchCategories = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/nav-menus/tree`, { cache: "no-store" });
+    if (!res.ok) throw new Error("카테고리 로딩 실패");
+    const data = await res.json();
+    setCategoryList(data);
+  } catch (err) {
+    console.error("카테고리 로딩 실패", err);
+  }
+};
+
   useEffect(() => {
     fetchProducts();
+
+    //add
+    fetchCategories();
+
     checkLogin();
   }, []);
 
@@ -131,13 +162,143 @@ autoPlay muted loop playsInline
   <WhiteBtn>자세히 보기</WhiteBtn>
 </BtnWrap>
 </TextBanner2>
-
-
 </VideoWrap>
 
-      <Container className="py-4">
- 
-      </Container>
+<h1 className="my-3">Trending Now</h1>
+<ScrollWrap>
+  <ImgWrap>
+   <img src="/img/1.png"/>
+   <ImgTextWrap>
+    <h2>나이키 머큐리얼 베이퍼</h2>
+    <WhiteBtn>구매하기</WhiteBtn>
+   </ImgTextWrap>
+  </ImgWrap>
+  <ImgWrap>
+    <img src="/img/2.png"/>
+       <ImgTextWrap>
+    <h2>나이키 머큐리얼 베이퍼</h2>
+    <WhiteBtn>구매하기</WhiteBtn>
+   </ImgTextWrap>
+  </ImgWrap>
+  <ImgWrap>
+    <img src="/img/3.png"/>
+       <ImgTextWrap>
+    <h2>나이키 머큐리얼 베이퍼</h2>
+    <WhiteBtn>구매하기</WhiteBtn>
+   </ImgTextWrap>
+  </ImgWrap>
+  <ImgWrap>
+    <img src="/img/4.png"/>
+       <ImgTextWrap>
+    <h2>나이키 머큐리얼 베이퍼</h2>
+    <WhiteBtn>구매하기</WhiteBtn>
+   </ImgTextWrap>
+  </ImgWrap>
+  <ImgWrap>
+    <img src="/img/5.png"/>
+       <ImgTextWrap>
+    <h2>나이키 머큐리얼 베이퍼</h2>
+    <WhiteBtn>구매하기</WhiteBtn>
+   </ImgTextWrap>
+  </ImgWrap>
+  <ImgWrap>
+    <img src="/img/6.png"/> 
+       <ImgTextWrap>
+    <h2>나이키 머큐리얼 베이퍼</h2>
+    <WhiteBtn>구매하기</WhiteBtn>
+   </ImgTextWrap>
+  </ImgWrap>
+
+</ScrollWrap>
+
+<SpotLight>
+<h1>SPOTLIGHT</h1>
+<p>혁신적인 기술에 클래식한 실루엣을 더한 나이키 아이템으로 걸음이 닿는 곳마다 시선을 사로잡아 보세요.</p>
+<SpotLightIconWrap>
+  <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+  <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+  <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+  <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+    <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+  <SpotLightIcon>
+    <img src="/img/air.png"/>
+    <h6>에어 조던1</h6>
+  </SpotLightIcon>
+
+</SpotLightIconWrap>
+</SpotLight>
+
+<Footer/>
 
       {/* 상품 모달 */}
       <ProductModal
@@ -149,6 +310,10 @@ autoPlay muted loop playsInline
         }}
         productId={currentProductId}
         mode={modalMode}
+
+        //add
+          isLogin={!!isLogin}             // ✅ 추가 (null 대비)
+  categoryList={categoryList}      // ✅ 추가
       />
     </>
   );

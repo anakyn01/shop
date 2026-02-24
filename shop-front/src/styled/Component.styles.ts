@@ -129,3 +129,97 @@ position:absolute; top:0; left:0;
 width:100%; height:100%; object-fit:cover; 
 z-index:0;
 `;
+
+export const ScrollWrap = styled.div`
+padding:0px 40px;
+display:flex;
+gap:20px;
+
+overflow-x : auto; 
+overflow-y: hidden;
+scroll-behavior:smooth;
+
+&::-webkit-scrollbar{height:6px;}
+&::-webkit-scrollbar-thumb{background:#ccc; border-radius:10px;}
+
+`;
+
+export const ImgWrap = styled.div`
+position:relative;
+flex: 0 0 clac((100% - 40px) / 3)
+height:auto;
+object-fit:cover;
+z-index:0;
+`;
+
+export const ImgTextWrap = styled.div`
+position:absolute;
+top:80%; left:5%;
+z-index:2;
+h2{
+font-weight:600;
+color:white;
+margin-bottom:20px;
+}
+`;
+
+export const SpotLight = styled.div`
+display:flex;
+justify-content:center;
+flex-direction:column;
+align-items:center;
+h1{
+margin-top:140px;
+font-size:5rem;
+font-weight:800;
+}
+p{
+font-size:1rem;
+font-weight:400;
+}
+`;
+
+export const SpotLightIconWrap = styled.div`
+display:flex; flex-wrap:wrap; 
+width:80%; justify-content:space-between; 
+align-items:center;
+`;
+export const SpotLightIcon = styled.div`
+margin-right:30px;
+h6{
+font-weight:800;
+text-align:center;
+font-size:.8rem;
+}
+`;
+
+export const FooterWrap = styled.footer`
+width:100%;
+border-top:1px solid #ccc;
+padding:0px 40px;
+display:flex; 
+justify-content:space-between;
+
+p{
+padding:30px 0px;
+font-size:12px;
+width:48%;
+line-height:24px;
+}
+
+`;
+
+export const FooterMenu = styled.div`
+padding:40px 0px;
+h6{
+margin-bottom:30px;
+font-weight:800;
+}
+a{
+color:inherit;
+text-decoration:none;
+line-height:40px;
+font-weight:500;
+}
+
+`;

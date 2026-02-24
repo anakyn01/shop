@@ -2,20 +2,29 @@ package com.hbk.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BannerCreateRequest {
+public class BannerResponse {
+
+    private Long id;
 
     private String title;
     private String desc;
-
-    // optional
     private String linkUrl;
     private Integer sortOrder;
+    private String visibleYn;
 
-    // "Y" | "N"  (프론트와 동일)
-    private String visibleYn; // null이면 Service/Controller에서 "Y"로 처리
+    // 이미지 정보
+    private String imageUrl;
+    private String imageOriginalName;
+    private String imageContentType;
+    private Long imageSize;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -11,6 +11,8 @@ import { ScrollWrap, TextBanner,TextBanner2, VideoWrap, ImgWrap, ImgTextWrap,
  } from "@/styled/Component.styles";
 import { WhiteBtn, BlackBtn, BtnWrap } from "@/styled/Button.styles";
 import Footer from "@/include/Footer";
+import MainImage from "./common/MainImage";
+import MainVideo from "./common/MainVideo";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
@@ -135,7 +137,7 @@ const [categoryList, setCategoryList] = useState<MenuNode[]>([]);
 {/*슬라이드 배너광고 */}
 <SmallBanner/>
 
-<img src ="/img/banner.png" className="w-100"/>
+<MainImage/>
 
 <TextBanner>
 <h1>나이키스킴스 2026 </h1>
@@ -147,22 +149,7 @@ const [categoryList, setCategoryList] = useState<MenuNode[]>([]);
 </BtnWrap>
 </TextBanner>
 
-<VideoWrap>
-<video
-autoPlay muted loop playsInline
->
-<source src="/videos/motion.mp4" type="video/mp4"/>
-</video>
-<TextBanner2>
-<h1>나이키스킴스 2026 </h1>
-<p>출시알림을 설정하고</p>
-<BtnWrap>
-  <WhiteBtn>알림설정하기</WhiteBtn>
-  <div className="mx-2"></div>
-  <WhiteBtn>자세히 보기</WhiteBtn>
-</BtnWrap>
-</TextBanner2>
-</VideoWrap>
+<MainVideo/>
 
 <h1 className="my-3">Trending Now</h1>
 <ScrollWrap>

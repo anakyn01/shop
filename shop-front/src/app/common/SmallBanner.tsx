@@ -1,56 +1,79 @@
+"use client";
+
+import {useEffect, useState} from "react";
 import Carousel from 'react-bootstrap/Carousel';
 
+const API_ROOT = "http://localhost:9999";
+const API_BASE = `${API_ROOT}/api`
+
+type BannerItem = {
+  id:number; title:string; desc:string; imageUrl:string;
+  linkUrl?:string | null; sortOrder?:number | null;
+  visibleYn?:"Y"|"N";
+}
+
 export default function SmallBanner(){
+
+  const[items, setItems] = useState<BannerItem[]>([])
+
+  const fetchBanners = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/banners`, { cache: "no-store" });
+      if (!res.ok) throw new Error("배너 로딩 실패");
+      const data = await res.json();
+      const list: BannerItem[] = Array.isArray(data) ? data : [];
+
+      // visibleYn=Y만 + sortOrder 정렬
+      const filtered = list
+        .filter((x) => (x.visibleYn ?? "Y") === "Y")
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+      setItems(filtered);
+    } catch (e) {
+      console.error(e);
+      setItems([]);
+    }
+  };
+
+    useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  if (items.length === 0) return null;
 
     return(
 <>
 <Carousel fade>
-  <Carousel.Item>
+      {items.map((b) => {
+        const imgSrc = b.imageUrl?.startsWith("http")
+          ? b.imageUrl
+          : `${API_ROOT}${b.imageUrl}`;
 
-    <Carousel.Caption>
-              <img
-          className="d-block w-100"
-          src="/img/slide.png"
-          alt="First slide"
-    width="100%"   // 여기서 width를 지정해 주세요.
-      height="100px"  // height을 "auto"로 지정해서 비율을 유지합니다.
-        />
-      <h3>블라블라</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt reiciendis, consectetur iste ex enim harum, iusto quas quasi magnam possimus est! Maxime quod at veniam fugiat a error nisi iure!</p>
-    </Carousel.Caption>
-  </Carousel.Item>
+        return (
+          <Carousel.Item key={b.id}>
+            {/* ✅ 이미지 */}
+            <img
+              className="d-block w-100"
+              src={imgSrc}
+              alt={b.title}
+              style={{
+                height: 260,         // ✅ 원하는 높이
+                objectFit: "cover",  // ✅ 비율 유지하며 꽉 채움
+              }}
+              onClick={() => {
+                if (b.linkUrl) window.location.href = b.linkUrl;
+              }}
+            />
 
-  <Carousel.Item>
-              <img
-          className="d-block w-100"
-          src="/img/slide2.png"
-          alt="First slide"
-                width="100%"   // 여기서 width를 지정해 주세요.
-      height="100px"  // height을 "auto"로 지정해서 비율을 유지합니다.
-        />
-    <Carousel.Caption>
-
-      <h3>블라블라</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt reiciendis, consectetur iste ex enim harum, iusto quas quasi magnam possimus est! Maxime quod at veniam fugiat a error nisi iure!</p>
-    </Carousel.Caption>
-  </Carousel.Item>
-
-  <Carousel.Item>
-          <img
-          className="d-block w-100"
-          src="/img/slide3.png"
-          alt="First slide"
-          height="100px"
-        />
-    <Carousel.Caption>
-      <h3>블라블라</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt reiciendis, consectetur iste ex enim harum, iusto quas quasi magnam possimus est! Maxime quod at veniam fugiat a error nisi iure!</p>
-    </Carousel.Caption>
-  </Carousel.Item>
-
-
-</Carousel>
-
+            {/* ✅ 텍스트 */}
+            <Carousel.Caption>
+              <h3>{b.title}</h3>
+              <p>{b.desc}</p>
+            </Carousel.Caption>
+          </Carousel.Item>
+        );
+      })}
+    </Carousel>
 </>
     );
 

@@ -70,3 +70,62 @@ export const Divider = styled.hr``;
 export const SidebarCard = styled.div`
   /* 카드 영역이 레이아웃 밀면 여기를 조절 */
 `;
+
+export const Img = styled.image`
+width:100%; max-width:100%;
+overflow-x:hidden;
+`;
+
+export const TextBanner = styled.div`
+width:100%;
+padding:20px;
+display:flex; justify-content:center;
+align-items:center;
+flex-direction:column;
+  h1{
+  font-size:5rem;
+  font-weight:800;
+  letter-spacing:-3%;
+  }
+  p{
+  font-size:1rem;
+  font-weight:400;
+  letter-spacing:-3%;
+  }
+`;
+
+export const TextBanner2 = styled.div`
+position:absolute;
+top:83%; left:50%;
+transform : translate(-50%, -50%);
+z-index:2;
+width:100%;
+padding:20px;
+display:flex; justify-content:center;
+align-items:center;
+flex-direction:column;
+  h1{
+  font-size:5rem;
+  font-weight:800;
+  letter-spacing:-3%;
+  color:white;
+  }
+  p{
+  font-size:1rem;
+  font-weight:400;
+  letter-spacing:-3%;
+  color:white;
+  }
+`;
+
+export const VideoWrap = styled.div`
+width:100%; 
+position:relative;
+overflow:hidden;
+`;
+
+export const BackgroundVideo = styled.video`
+position:absolute; top:0; left:0;
+width:100%; height:100%; object-fit:cover; 
+z-index:0;
+`;

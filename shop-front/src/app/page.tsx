@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 
 import Header from "@/include/Header";
 import ProductModal from "@/modal/ProductModal";
+import SmallBanner from "./common/SmallBanner";
+import { BackgroundVideo, TextBanner,TextBanner2, VideoWrap } from "@/styled/Component.styles";
+import { WhiteBtn, BlackBtn, BtnWrap } from "@/styled/Button.styles";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
@@ -97,54 +100,40 @@ export default function Home() {
         isLogin={isLogin}
         setIsLogin={setIsLogin}
       />
-<Carousel fade>
 
-  <Carousel.Item>
-      <img
-          className="d-block w-100"
-          src="/img/slide1.png"
-          alt="First slide"
-                width="100%"   // 여기서 width를 지정해 주세요.
-      height="auto"  // height을 "auto"로 지정해서 비율을 유지합니다.
-        />
-    <Carousel.Caption>
+{/*슬라이드 배너광고 */}
+<SmallBanner/>
 
-      <h3>블라블라</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt reiciendis, consectetur iste ex enim harum, iusto quas quasi magnam possimus est! Maxime quod at veniam fugiat a error nisi iure!</p>
-    </Carousel.Caption>
-  </Carousel.Item>
+<img src ="/img/banner.png" className="w-100"/>
 
-  <Carousel.Item>
-              <img
-          className="d-block w-100"
-          src="/img/slide2.png"
-          alt="First slide"
-                width="100%"   // 여기서 width를 지정해 주세요.
-      height="auto"  // height을 "auto"로 지정해서 비율을 유지합니다.
-        />
-    <Carousel.Caption>
+<TextBanner>
+<h1>나이키스킴스 2026 </h1>
+<p>출시알림을 설정하고</p>
+<BtnWrap>
+  <BlackBtn>알림설정하기</BlackBtn>
+  <div className="mx-2"></div>
+  <BlackBtn>자세히 보기</BlackBtn>
+</BtnWrap>
+</TextBanner>
 
-      <h3>블라블라</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt reiciendis, consectetur iste ex enim harum, iusto quas quasi magnam possimus est! Maxime quod at veniam fugiat a error nisi iure!</p>
-    </Carousel.Caption>
-  </Carousel.Item>
-
-  <Carousel.Item>
-          <img
-          className="d-block w-100"
-          src="/img/slide3.png"
-          alt="First slide"
-        />
-    <Carousel.Caption>
-      <h3>블라블라</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt reiciendis, consectetur iste ex enim harum, iusto quas quasi magnam possimus est! Maxime quod at veniam fugiat a error nisi iure!</p>
-    </Carousel.Caption>
-  </Carousel.Item>
+<VideoWrap>
+<video
+autoPlay muted loop playsInline
+>
+<source src="/videos/motion.mp4" type="video/mp4"/>
+</video>
+<TextBanner2>
+<h1>나이키스킴스 2026 </h1>
+<p>출시알림을 설정하고</p>
+<BtnWrap>
+  <WhiteBtn>알림설정하기</WhiteBtn>
+  <div className="mx-2"></div>
+  <WhiteBtn>자세히 보기</WhiteBtn>
+</BtnWrap>
+</TextBanner2>
 
 
-</Carousel>
-
-
+</VideoWrap>
 
       <Container className="py-4">
  

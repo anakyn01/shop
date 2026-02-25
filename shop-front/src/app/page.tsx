@@ -14,6 +14,8 @@ import Footer from "@/include/Footer";
 import MainImage from "./common/MainImage";
 import MainVideo from "./common/MainVideo";
 import TEXTBanner from "./common/TEXTBanner";
+import ScrollBanner from "./common/ScrollBanner";
+import SpotBanner from "./common/SpotBanner";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
@@ -144,139 +146,9 @@ const [categoryList, setCategoryList] = useState<MenuNode[]>([]);
 
 <MainVideo/>
 
-<h1 className="my-3">Trending Now</h1>
-<ScrollWrap>
-  <ImgWrap>
-   <img src="/img/1.png"/>
-   <ImgTextWrap>
-    <h2>나이키 머큐리얼 베이퍼</h2>
-    <WhiteBtn>구매하기</WhiteBtn>
-   </ImgTextWrap>
-  </ImgWrap>
-  <ImgWrap>
-    <img src="/img/2.png"/>
-       <ImgTextWrap>
-    <h2>나이키 머큐리얼 베이퍼</h2>
-    <WhiteBtn>구매하기</WhiteBtn>
-   </ImgTextWrap>
-  </ImgWrap>
-  <ImgWrap>
-    <img src="/img/3.png"/>
-       <ImgTextWrap>
-    <h2>나이키 머큐리얼 베이퍼</h2>
-    <WhiteBtn>구매하기</WhiteBtn>
-   </ImgTextWrap>
-  </ImgWrap>
-  <ImgWrap>
-    <img src="/img/4.png"/>
-       <ImgTextWrap>
-    <h2>나이키 머큐리얼 베이퍼</h2>
-    <WhiteBtn>구매하기</WhiteBtn>
-   </ImgTextWrap>
-  </ImgWrap>
-  <ImgWrap>
-    <img src="/img/5.png"/>
-       <ImgTextWrap>
-    <h2>나이키 머큐리얼 베이퍼</h2>
-    <WhiteBtn>구매하기</WhiteBtn>
-   </ImgTextWrap>
-  </ImgWrap>
-  <ImgWrap>
-    <img src="/img/6.png"/> 
-       <ImgTextWrap>
-    <h2>나이키 머큐리얼 베이퍼</h2>
-    <WhiteBtn>구매하기</WhiteBtn>
-   </ImgTextWrap>
-  </ImgWrap>
+<ScrollBanner/>
 
-</ScrollWrap>
-
-<SpotLight>
-<h1>SPOTLIGHT</h1>
-<p>혁신적인 기술에 클래식한 실루엣을 더한 나이키 아이템으로 걸음이 닿는 곳마다 시선을 사로잡아 보세요.</p>
-<SpotLightIconWrap>
-  <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-  <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-  <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-  <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-    <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-  <SpotLightIcon>
-    <img src="/img/air.png"/>
-    <h6>에어 조던1</h6>
-  </SpotLightIcon>
-
-</SpotLightIconWrap>
-</SpotLight>
+<SpotBanner/>
 
 <Footer/>
 

@@ -33,6 +33,10 @@ export default function () {
             </NavItem><br/>
 
             <NavItem>
+                <Link  href="/admin/textbanner">텍스트배너 설정</Link>
+            </NavItem><br/>
+
+            <NavItem>
                 <Link  href="/admin/motion">메인비디오 업로드</Link>
             </NavItem><br/>
 

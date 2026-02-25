@@ -13,6 +13,7 @@ import { WhiteBtn, BlackBtn, BtnWrap } from "@/styled/Button.styles";
 import Footer from "@/include/Footer";
 import MainImage from "./common/MainImage";
 import MainVideo from "./common/MainVideo";
+import TEXTBanner from "./common/TEXTBanner";
 
 const API_ROOT = "http://localhost:9999";
 const API_BASE = `${API_ROOT}/api`;
@@ -139,15 +140,7 @@ const [categoryList, setCategoryList] = useState<MenuNode[]>([]);
 
 <MainImage/>
 
-<TextBanner>
-<h1>나이키스킴스 2026 </h1>
-<p>출시알림을 설정하고</p>
-<BtnWrap>
-  <BlackBtn>알림설정하기</BlackBtn>
-  <div className="mx-2"></div>
-  <BlackBtn>자세히 보기</BlackBtn>
-</BtnWrap>
-</TextBanner>
+<TEXTBanner/>
 
 <MainVideo/>
 

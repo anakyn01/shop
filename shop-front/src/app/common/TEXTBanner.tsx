@@ -81,37 +81,46 @@ useEffect(() => {//컴포넌트가 처음 마운트될 때 한 번만 실행
 
 // ✅ 노출(Y)만 + sortOrder 정렬
   const visibleSorted = useMemo(() => {
+//useMemo() → 계산 결과를 메모이제이션(기억) 하는 훅    
     return bannerList
+    //state에 저장된 전체 배너 목록을 기준으로 가공 시작
       .filter((b) => (b.visibleYn ?? "Y") === "Y")
+//visibleYn 값이 "Y"인 것만 남김 (노출 배너만)     
+//?? "Y" → null 또는 undefined일 경우 기본값 "Y"  
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   }, [bannerList]);
 
   // ✅ 일단 "첫 번째 배너 1개만" 보여주기 (원하면 슬라이드로 확장 가능)
   const banner = visibleSorted[0];
-
+//정렬된 목록 중 첫 번째 배너만 사용
   const goLink = (url?: string | null) => {
+//url은 optional
     if (!url) return alert("이 배너는 이동 링크가 설정되어 있지 않습니다.");
-
+//url이 없으면 alert 띄우고 종료
     // 외부링크 / 내부링크 분기
-    if (/^https?:\/\//i.test(url)) {
+    if (/^https?:\/\//i.test(url)) {//즉, 외부 URL인지 판별
       window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
-    router.push(url);
+    router.push(url);//외부 URL이 아니면 → 내부 라우팅
   };
 
-  if (loading) return null;
-  if (!banner) return null;
+  if (loading) return null;//로딩 중이면 아무것도 렌더링하지 않음
+  if (!banner) return null;//보여줄 배너가 없으면 렌더링 안 함
 
 return(
     <>
     <TextBanner>
-    <h1>나이키스킴스 2026 </h1>
-    <p>출시알림을 설정하고</p>
+    <h1>{banner.title}</h1>
+    <p>{banner.desc}</p>
     <BtnWrap>
-      <BlackBtn>알림설정하기</BlackBtn>
+      <BlackBtn
+      onClick={() => alert("출시 알림 로직을 연결하세요!")}
+      >알림설정하기</BlackBtn>
       <div className="mx-2"></div>
-      <BlackBtn>자세히 보기</BlackBtn>
+      <BlackBtn
+      onClick={() => goLink(banner.linkUrl)}
+      >자세히 보기</BlackBtn>
     </BtnWrap>
     </TextBanner>
     </>

@@ -1,63 +1,70 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { FooterMenu, FooterWrap } from "@/styled/Component.styles";
 
+type Category = { id: number; title: string; sortOrder?: number|null; visibleYn?: "Y"|"N" };
+type LinkItem = { id: number; categoryId: number; label: string; url: string; sortOrder?: number|null; visibleYn?: "Y"|"N" };
+type FooterText = { id: number; paragraph1: string; paragraph2: string };
+
+const API_ROOT = "http://localhost:9999";
+const API_BASE = `${API_ROOT}/api`;
+
 export default function Footer() {
+  const [cats, setCats] = useState<Category[]>([]);
+  const [linksMap, setLinksMap] = useState<Record<number, LinkItem[]>>({});
+  const [text, setText] = useState<FooterText | null>(null);
 
-    return(
-        <>
-        <FooterWrap>
-            <FooterMenu>
-                <h6>안내</h6>
-                <a href="">맴버가입</a><br/>
-                <a href="">매장찾기</a><br/>
-                <a href="">제품 가이드</a><br/>
-                <a href="">러닝화 가이드</a><br/>
+  const load = async () => {
+    const cRes = await fetch(`${API_BASE}/footer/categories`, { cache: "no-store" });
+    const cData = await cRes.json().catch(() => []);
+    const categories: Category[] = Array.isArray(cData) ? cData : [];
+    setCats(categories);
+
+    // 각 카테고리별 링크 조회
+    const map: Record<number, LinkItem[]> = {};
+    for (const c of categories) {
+      const r = await fetch(`${API_BASE}/footer/categories/${c.id}/links`, { cache: "no-store" });
+      const d = await r.json().catch(() => []);
+      map[c.id] = (Array.isArray(d) ? d : []);
+    }
+    setLinksMap(map);
+
+    const tRes = await fetch(`${API_BASE}/footer/text`, { cache: "no-store" });
+    const tData = await tRes.json().catch(() => null);
+    setText(tData);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const visibleCats = useMemo(
+    () => cats.filter(c => (c.visibleYn ?? "Y") === "Y"),
+    [cats]
+  );
+
+  return (
+    <>
+      <FooterWrap>
+        {visibleCats.map((c) => {
+          const links = (linksMap[c.id] ?? []).filter(l => (l.visibleYn ?? "Y") === "Y");
+          return (
+            <FooterMenu key={c.id}>
+              <h6>{c.title}</h6>
+              {links.map((l) => (
+                <span key={l.id}>
+                  <a href={l.url}>{l.label}</a>
+                  <br />
+                </span>
+              ))}
             </FooterMenu>
+          );
+        })}
+      </FooterWrap>
 
-            <FooterMenu>
-                <h6>맴버 혜택</h6>
-                <a href="">월컴 쿠폰</a><br/>
-                <a href="">생일 쿠폰</a><br/>
-                <a href="">학생 할인 쿠폰</a><br/>
-            </FooterMenu>
-
-            <FooterMenu>
-                <h6>고객 센터</h6>
-                <a href="">주문배송조회</a><br/>
-                <a href="">반품 정책</a><br/>
-                <a href="">결제 방법</a><br/>
-                <a href="">공지사항</a><br/>
-                <a href="">공지사항</a><br/>
-            </FooterMenu>
-
-            <FooterMenu>
-                <h6>회사 소개</h6>
-                <a href="">주문배송조회</a><br/>
-                <a href="">반품 정책</a><br/>
-                <a href="">결제 방법</a><br/>
-                <a href="">공지사항</a><br/>
-                <a href="">공지사항</a><br/>
-            </FooterMenu>
-
-                        <FooterMenu>
-                <h6>회사 소개</h6>
-                <a href="">주문배송조회</a><br/>
-                <a href="">반품 정책</a><br/>
-                <a href="">결제 방법</a><br/>
-                <a href="">공지사항</a><br/>
-                <a href="">공지사항</a><br/>
-            </FooterMenu>
-
-        </FooterWrap>
-        <FooterWrap>
-<p>(유)나이키코리아 대표 Chase Louis Taylor, 체이스 루이스 테일러 | 서울 강남구 테헤란로 152 강남파이낸스센터 30층 | 통신판매업신고번호 2011-서울강남-03461 | 사업자등록번호 220-88-09068 사업자 정보 확인
-
-고객센터 전화 문의 080-022-0182 FAX 02-6744-5880 | 이메일 Nikekorea@nike.com | 호스팅서비스사업자 (유)나이키코리아</p>
-            <p>
-                현금 등으로 결제 시 안전 거래를 위해 나이키 쇼핑몰에서 가입하신 한국결제네트웍스 유한회사의 구매안전 서비스(결제대금예치)를 이용하실 수 있습니다.
-
-콘텐츠산업진흥법에 의한 콘텐츠 보호 안내 자세히 보기
-            </p>
-        </FooterWrap>
-        </>
-    )
+      <FooterWrap>
+        <p>{text?.paragraph1 ?? ""}</p>
+        <p>{text?.paragraph2 ?? ""}</p>
+      </FooterWrap>
+    </>
+  );
 }

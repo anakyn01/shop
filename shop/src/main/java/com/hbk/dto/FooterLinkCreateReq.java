@@ -1,23 +1,13 @@
 package com.hbk.dto;
 
-import com.hbk.entity.FooterCategory;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
-@Getter
-@Builder
-public class FooterCategoryRes {
-    private Long id;
-    private String title;
+@Getter @Setter
+public class FooterLinkCreateReq {
+    private Long categoryId; // 어떤 1차 아래에 넣을지
+    private String label;
+    private String url;
     private Integer sortOrder;
-    private String visibleYn;
-
-    public static FooterCategoryRes from(FooterCategory e){
-        return FooterCategoryRes.builder()
-                .id(e.getId())
-                .title(e.getTitle())
-                .sortOrder(e.getSortOrder())
-                .visibleYn(e.getVisibleYn())
-                .build();
-    }
+    private String visibleYn; // Y/N
 }

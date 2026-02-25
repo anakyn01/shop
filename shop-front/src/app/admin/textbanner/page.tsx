@@ -45,7 +45,7 @@ const API_BASE = `${API_ROOT}/api`;
 // ✅ API helpers
 // -------------------------
 async function apiBannerList(): Promise<BannerItem[]> {
-  const res = await fetch(`${API_BASE}/banners`, {
+  const res = await fetch(`${API_BASE}/text-banners`, {
     method: "GET",
     credentials: "include",
     cache: "no-store",
@@ -73,7 +73,7 @@ async function apiBannerCreate(payload: {
   if (payload.sortOrder != null) fd.append("sortOrder", String(payload.sortOrder));
   if (payload.imageFile) fd.append("image", payload.imageFile); // ✅ 선택
 
-  const res = await fetch(`${API_BASE}/banners`, {
+  const res = await fetch(`${API_BASE}/text-banners`, {
     method: "POST",
     credentials: "include",
     body: fd,
@@ -87,7 +87,7 @@ async function apiBannerCreate(payload: {
 }
 
 async function apiBannerDelete(id: number): Promise<void> {
-  const res = await fetch(`${API_BASE}/banners/${id}`, {
+  const res = await fetch(`${API_BASE}/text-banners/${id}`, {
     method: "DELETE",
     credentials: "include",
   });

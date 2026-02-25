@@ -21,7 +21,7 @@ async function apiBannerList(): Promise<BannerItem[]> {
 이 함수는 BannerItem[] (배너 객체 배열)을 감싸는 Promise를 반환합니다.
 즉, 최종적으로는 BannerItem[]을 resolve 하는 Promise입니다.
   */
-  const res = await fetch(`${API_BASE}/banners`, {
+  const res = await fetch(`${API_BASE}/text-banners`, {
     //→ 브라우저에서 제공하는 HTTP 요청 함수입니다.
     method: "GET",//HTTP 요청 방식은 GET입니다.
     credentials: "include",//쿠키를 포함해서 요청하겠다는 의미입니다.
@@ -66,6 +66,7 @@ setLoading(true);
   try{ //API 호출 중 에러 발생 가능하므로 예외 처리 시작
     const data = await apiBannerList();//앞에서 만든 apiBannerList() 호출
     const list = Array.isArray(data) ? data : [];
+    setBannerList(list);
     //data가 배열이면 그대로 사용 아니면 빈 배열로 대체 👉 방어 코드 (defensive coding)
   } catch (e:any) {//API 호출 중 에러 발생 시 실행
     console.error(e);//콘솔에 에러 출력 (디버깅용)
